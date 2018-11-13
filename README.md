@@ -1,0 +1,2 @@
+# Apriori
+Solving the first sub-problem: to implement the Apriori algorithm for finding frequent itemsets with support at least s in a dataset of sales transactions. Remind that support of an itemset is the number of transactions containing the itemset. To test and evaluate your implementation, write a program that uses your Apriori algorithm implementation to discover frequent itemsets with support at least s in a given dataset of sales transactions.
