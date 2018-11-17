@@ -11,6 +11,7 @@ class AprioriAlgorithm(inputFile: File) {
   var transactions : ListBuffer[ListBuffer[Int]] = ListBuffer()
   var allItems: ListBuffer[Int] = ListBuffer()
   var candidates: mutable.TreeMap[Int, Int] = mutable.TreeMap()
+  var frequentItemsets: mutable.TreeMap[Int, Int] = mutable.TreeMap()
   val minSupport : Double = 1000
   val minConfidence : Double = 0.5
 
@@ -20,15 +21,37 @@ class AprioriAlgorithm(inputFile: File) {
       transactions += elementList
     }
   }
-
   allItems = transactions.flatMap(x => x)
-  candidates = TreeMap(allItems.groupBy(l => l).map(t => (t._1, t._2.length)).toSeq:_*)
-  candidates.foreach(println)
 
   println(s"No. of items are: ${transactions.size}")
   println(s"No. of baskets are: ${allItems.max + 1}")
   println(s"Support: ${minSupport}")
   println(s"Confidence: ${minConfidence}")
 
+  def runApriori(): Unit = {
+    findFrequentSingletons
 
+  }
+
+  private def findFrequentSingletons = {
+    candidates = TreeMap(allItems.groupBy(l => l).map(t => (t._1, t._2.length)).toSeq: _*)
+    //candidates retain {(key,value) => value > minSupport} // retain only items whos frequent (more than specified support)
+    frequentItemsets = candidates.filter(c => c._2 > minSupport)
+    //frequentItemsets.foreach(println)
+    //candidates.foreach(println)
+
+    println(s"Frequent singletons are: ${frequentItemsets.size}")
+    //for ((k,v) <- frequentItemsets) println(s"key: $k, value: $v")
+
+    breakable {
+      frequentItemsets.zipWithIndex.foreach { case (kv, i) =>
+        print(s"(${kv._1}) ")
+        if (i == 25) {
+          println("...")
+          println(s"There are ${frequentItemsets.size - 25} more frequent singletons")
+          break
+        }
+      }
+    }
+  }
 }
