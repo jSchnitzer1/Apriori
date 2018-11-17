@@ -1,3 +1,10 @@
-object Main extends App {
-  println("Apriori!")
+package apriori
+
+import java.io.File
+
+object Main  {
+  def main(args: Array[String]) = {
+    val alg = new AprioriAlgorithm(new File("/Users/khaled/Desktop/T10I4D100K.dat"))
+
+  }
 }
