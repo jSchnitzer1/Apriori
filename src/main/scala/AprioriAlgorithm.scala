@@ -1,19 +1,21 @@
 package apriori
 
 import java.io._
+import java.util
+import java.util.Arrays
 
 import scala.collection.mutable
 import scala.collection.mutable._
 import scala.io.Source
 import scala.util.control.Breaks._
 
-class AprioriAlgorithm(inputFile: File) {
+class AprioriAlgorithm(inputFile: File, minSupportPercentage: Double = 0.01, minConfidence : Double = 0.5) {
   var transactions : ListBuffer[ListBuffer[Int]] = ListBuffer()
   var allItems: ListBuffer[Int] = ListBuffer()
   var candidates: mutable.TreeMap[Int, Int] = mutable.TreeMap()
+  var candidatesCombinations: List[(Int, Int)] = List()
   var frequentItemsets: mutable.TreeMap[Int, Int] = mutable.TreeMap()
-  val minSupport : Double = 1000
-  val minConfidence : Double = 0.5
+  var minSupport: Double = 0
 
   for (line<-Source.fromFile(inputFile).getLines()) {
     val elementList = mutable.ListBuffer(line.trim.split(' ').map(_.toInt) :_*)
@@ -21,6 +23,7 @@ class AprioriAlgorithm(inputFile: File) {
       transactions += elementList
     }
   }
+  minSupport = transactions.size * minSupportPercentage
   allItems = transactions.flatMap(x => x)
 
   println(s"No. of items are: ${transactions.size}")
@@ -30,10 +33,10 @@ class AprioriAlgorithm(inputFile: File) {
 
   def runApriori(): Unit = {
     findFrequentSingletons
-
+    findFrequentItemsets
   }
 
-  private def findFrequentSingletons = {
+  private def findFrequentSingletons: Unit = {
     candidates = TreeMap(allItems.groupBy(l => l).map(t => (t._1, t._2.length)).toSeq: _*)
     //candidates retain {(key,value) => value > minSupport} // retain only items whos frequent (more than specified support)
     frequentItemsets = candidates.filter(c => c._2 > minSupport)
@@ -53,5 +56,23 @@ class AprioriAlgorithm(inputFile: File) {
         }
       }
     }
+  }
+
+  private def findFrequentItemsets: Unit = {
+    genetateCandidatesCombinations
+  }
+
+  private def genetateCandidatesCombinations: Unit = {
+    val itemSet = frequentItemsets.keySet.toList
+    candidatesCombinations = itemSet.zipWithIndex.flatMap{case (n,x) => itemSet.drop(x+1).map(n -> _)}
+    /*var tmpRes: ListBuffer[List[(Int, Int)]] = ListBuffer()
+    (0 until itemSet.size) foreach { i =>
+      val left = List(itemSet(i))
+      val (_, right) = itemSet.splitAt(i+1)
+      val res:List[(Int, Int)] = for (left_ <- left; right_ <- right) yield (left_, right_)
+      tmpRes += res
+    }
+    var combinations: ListBuffer[(Int, Int)] = tmpRes.flatMap(x => x)*/
+    //combinations.foreach(println)
   }
 }
