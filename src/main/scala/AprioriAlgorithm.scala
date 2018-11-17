@@ -9,7 +9,7 @@ import scala.collection.mutable._
 import scala.io.Source
 import scala.util.control.Breaks._
 
-class AprioriAlgorithm(inputFile: File, minSupportPercentage: Double = 0.01, minConfidence : Double = 0.5) {
+class AprioriAlgorithm(inputFile: File, minSupportPercentage: Double = 0.04, minConfidence : Double = 0.5) {
   var transactions : ListBuffer[ListBuffer[Int]] = ListBuffer()
   var allItems: ListBuffer[Int] = ListBuffer()
   var candidates: mutable.TreeMap[Int, Int] = mutable.TreeMap()
@@ -60,6 +60,14 @@ class AprioriAlgorithm(inputFile: File, minSupportPercentage: Double = 0.01, min
 
   private def findFrequentItemsets: Unit = {
     genetateCandidatesCombinations
+    var candidatesFrequency: ListBuffer[Int] = ListBuffer.fill(candidatesCombinations.size)(0)
+    (0 until transactions.size) foreach { i =>
+      (0 until candidatesCombinations.size) foreach { j =>
+        val candidateItem = candidatesCombinations(j)
+        if(transactions(i).contains(candidateItem._1) && transactions(i).contains(candidateItem._2))
+          candidatesFrequency(j) += 1
+      }
+    }
   }
 
   private def genetateCandidatesCombinations: Unit = {
